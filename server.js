@@ -18,6 +18,16 @@ const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || `http://localhost:${PORT}
 // Garante que o diretório base exista
 fs.mkdirSync(BASE_DIR, { recursive: true });
 
+// Healthcheck raiz (para o EasyPanel / load balancer)
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', service: 'video-downloader', baseDir: BASE_DIR });
+});
+
+// Healthcheck simples adicional
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', service: 'video-downloader', baseDir: BASE_DIR });
+});
+
 // Storage do multer: define pasta e nome do arquivo
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -39,11 +49,6 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-
-// Healthcheck simples
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'video-downloader' });
-});
 
 /**
  * POST /upload
